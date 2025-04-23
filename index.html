@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Callbacks: Event Listeners & Timers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .output {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            min-height: 50px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px 0;
+        }
+        pre {
+            background-color: #f8f8f8;
+            border-left: 3px solid #4CAF50;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        .code-title {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .timer-progress {
+            height: 20px;
+            width: 100%;
+            background-color: #e0e0e0;
+            margin: 10px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .timer-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #4CAF50;
+            transition: width 0.1s linear;
+        }
+        #mouseMoveArea {
+            height: 100px;
+            background-color: #e9f5ea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .highlight {
+            background-color: #ffff99;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Understanding Callbacks with Event Listeners & Timers</h1>
+    <p>This interactive page demonstrates how callbacks work with event listeners and timers in JavaScript.</p>
+    
+    <!-- SECTION 1: BASIC EVENT LISTENERS -->
+    <div class="section">
+        <h2>1. Basic Event Listeners</h2>
+        <p>Event listeners are a perfect example of callbacks. The callback function is executed when the event occurs.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+// Adding a click event listener to a button
+document.getElementById("clickButton").addEventListener("click", function() {
+    document.getElementById("clickOutput").textContent = "Button was clicked!";
+});</pre>
+        
+        <button id="clickButton">Click Me</button>
+        <div class="output" id="clickOutput">Output will appear here...</div>
+    </div>
+    
+    <!-- SECTION 2: EVENT OBJECT IN CALLBACKS -->
+    <div class="section">
+        <h2>2. Event Object in Callbacks</h2>
+        <p>Event listener callbacks receive an <span class="highlight">event object</span> that contains information about the event.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+// Using the event object in a callback
+document.getElementById("infoButton").addEventListener("click", function(event) {
+    const output = document.getElementById("eventOutput");
+    output.innerHTML = `
+        Event type: ${event.type}<br>
+        Target element: ${event.target.tagName}<br>
+        Coordinates: X=${event.clientX}, Y=${event.clientY}<br>
+        Time: ${new Date().toLocaleTimeString()}
+    `;
+});</pre>
+        
+        <button id="infoButton">Get Event Info</button>
+        <div class="output" id="eventOutput">Click the button to see event information...</div>
+    </div>
+    
+    <!-- SECTION 3: MULTIPLE EVENT LISTENERS -->
+    <div class="section">
+        <h2>3. Multiple Event Listeners</h2>
+        <p>You can attach multiple event listeners to the same element. Each callback will execute when the event occurs.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+// First event listener
+document.getElementById("multiButton").addEventListener("click", function() {
+    document.getElementById("multiOutput").textContent += "First callback executed! ";
+});
+
+// Second event listener on the same button
+document.getElementById("multiButton").addEventListener("click", function() {
+    document.getElementById("multiOutput").textContent += "Second callback executed! ";
+});</pre>
+        
+        <button id="multiButton">Click For Multiple Callbacks</button>
+        <button id="resetMulti">Reset Output</button>
+        <div class="output" id="multiOutput">Output will appear here...</div>
+    </div>
+    
+    <!-- SECTION 4: DIFFERENT EVENT TYPES -->
+    <div class="section">
+        <h2>4. Different Event Types</h2>
+        <p>Elements can listen for various types of events with different callbacks.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+const inputElement = document.getElementById("demoInput");
+
+// Input event occurs when value changes
+inputElement.addEventListener("input", function() {
+    document.getElementById("inputOutput").textContent = 
+        `Current value: ${this.value}`;
+});
+
+// Focus event
+inputElement.addEventListener("focus", function() {
+    document.getElementById("inputOutput").textContent += 
+        "\nInput is focused!";
+});
+
+// Blur event (losing focus)
+inputElement.addEventListener("blur", function() {
+    document.getElementById("inputOutput").textContent += 
+        "\nInput lost focus!";
+});</pre>
+        
+        <input type="text" id="demoInput" placeholder="Type something...">
+        <div class="output" id="inputOutput">Interact with the input to see events...</div>
+    </div>
+    
+    <!-- SECTION 5: MOUSE MOVEMENT -->
+    <div class="section">
+        <h2>5. Mouse Movement Events</h2>
+        <p>The mousemove event demonstrates how callbacks can be called rapidly many times.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+const moveArea = document.getElementById("mouseMoveArea");
+const moveOutput = document.getElementById("moveOutput");
+
+moveArea.addEventListener("mousemove", function(event) {
+    const rect = moveArea.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    moveOutput.textContent = `Mouse position: X=${Math.round(x)}, Y=${Math.round(y)}`;
+});</pre>
+        
+        <div id="mouseMoveArea">Move mouse here</div>
+        <div class="output" id="moveOutput">Move your mouse in the area above...</div>
+    </div>
+    
+    <!-- SECTION 6: BASIC TIMERS -->
+    <div class="section">
+        <h2>6. Basic Timers</h2>
+        <p>setTimeout and setInterval use callbacks to execute code after a specified delay or at regular intervals.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+// setTimeout - executes once after a delay
+function delayedMessage() {
+    setTimeout(function() {
+        document.getElementById("timeoutOutput").textContent = 
+            "This message appeared after 2 seconds!";
+    }, 2000); // 2000 milliseconds = 2 seconds
+    
+    document.getElementById("timeoutOutput").textContent = 
+        "Waiting for 2 seconds...";
+}</pre>
+        
+        <button id="timeoutButton">Start setTimeout</button>
+        <div class="output" id="timeoutOutput">Output will appear here...</div>
+    </div>
+    
+    <!-- SECTION 7: INTERVAL TIMERS -->
+    <div class="section">
+        <h2>7. Interval Timers</h2>
+        <p>setInterval executes a callback repeatedly at specified intervals.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+// setInterval - executes repeatedly
+let counter = 0;
+let intervalId;
+
+function startCounter() {
+    // Clear any existing interval first
+    clearInterval(intervalId);
+    
+    counter = 0;
+    document.getElementById("intervalOutput").textContent = "Counter: " + counter;
+    
+    intervalId = setInterval(function() {
+        counter++;
+        document.getElementById("intervalOutput").textContent = "Counter: " + counter;
+        
+        // Stop after reaching 10
+        if (counter >= 10) {
+            clearInterval(intervalId);
+            document.getElementById("intervalOutput").textContent += 
+                "\nCounter stopped after reaching 10";
+        }
+    }, 1000); // Execute every 1 second
+}</pre>
+        
+        <button id="intervalButton">Start Counter</button>
+        <div class="output" id="intervalOutput">Output will appear here...</div>
+    </div>
+    
+    <!-- SECTION 8: PROGRESS BAR WITH TIMERS -->
+    <div class="section">
+        <h2>8. Progress Bar with Timers</h2>
+        <p>Combining setInterval with DOM updates to create a progress bar.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+let progress = 0;
+let progressIntervalId;
+
+function startProgress() {
+    // Reset first
+    clearInterval(progressIntervalId);
+    progress = 0;
+    
+    const progressBar = document.getElementById("progressBar");
+    progressBar.style.width = "0%";
+    
+    document.getElementById("progressOutput").textContent = "Progress: 0%";
+    
+    progressIntervalId = setInterval(function() {
+        progress += 1;
+        progressBar.style.width = progress + "%";
+        document.getElementById("progressOutput").textContent = 
+            `Progress: ${progress}%`;
+        
+        if (progress >= 100) {
+            clearInterval(progressIntervalId);
+            document.getElementById("progressOutput").textContent += 
+                "\nProgress complete!";
+        }
+    }, 50); // Update every 50ms for smooth animation
+}</pre>
+        
+        <button id="progressButton">Start Progress</button>
+        <div class="timer-progress">
+            <div id="progressBar" class="timer-bar"></div>
+        </div>
+        <div class="output" id="progressOutput">Click to start progress...</div>
+    </div>
+    
+    <!-- SECTION 9: CLEARING TIMERS -->
+    <div class="section">
+        <h2>9. Clearing Timers</h2>
+        <p>Using clearTimeout and clearInterval to cancel scheduled callbacks.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+let timeoutId;
+
+function startTimeout() {
+    // Clear any existing timeout
+    clearTimeout(timeoutId);
+    
+    document.getElementById("clearOutput").textContent = 
+        "Timeout started. Will execute in 5 seconds...";
+    
+    timeoutId = setTimeout(function() {
+        document.getElementById("clearOutput").textContent = 
+            "Timeout executed!";
+    }, 5000);
+}
+
+function cancelTimeout() {
+    clearTimeout(timeoutId);
+    document.getElementById("clearOutput").textContent = 
+        "Timeout was cancelled!";
+}</pre>
+        
+        <button id="startTimeoutButton">Start 5s Timeout</button>
+        <button id="cancelTimeoutButton">Cancel Timeout</button>
+        <div class="output" id="clearOutput">Use the buttons above...</div>
+    </div>
+    
+    <!-- SECTION 10: NESTED TIMERS -->
+    <div class="section">
+        <h2>10. Nested Timers</h2>
+        <p>Creating a sequence of actions with nested timers.</p>
+        
+        <div class="code-title">Example Code:</div>
+        <pre>
+function startSequence() {
+    const output = document.getElementById("sequenceOutput");
+    output.textContent = "Starting sequence...";
+    
+    setTimeout(function() {
+        output.textContent += "\nFirst action after 1 second";
+        
+        setTimeout(function() {
+            output.textContent += "\nSecond action after 2 more seconds";
+            
+            setTimeout(function() {
+                output.textContent += "\nThird action after 3 more seconds";
+                output.textContent += "\nSequence complete!";
+            }, 3000);
+            
+        }, 2000);
+        
+    }, 1000);
+}</pre>
+        
+        <button id="sequenceButton">Start Sequence</button>
+        <div class="output" id="sequenceOutput">Use the button to start a sequence...</div>
+    </div>
+
+    <script>
+        // SECTION 1: Basic Event Listeners
+        document.getElementById("clickButton").addEventListener("click", function() {
+            document.getElementById("clickOutput").textContent = "Button was clicked!";
+        });
+        
+        // SECTION 2: Event Object in Callbacks
+        document.getElementById("infoButton").addEventListener("click", function(event) {
+            const output = document.getElementById("eventOutput");
+            output.innerHTML = `
+                Event type: ${event.type}<br>
+                Target element: ${event.target.tagName}<br>
+                Coordinates: X=${event.clientX}, Y=${event.clientY}<br>
+                Time: ${new Date().toLocaleTimeString()}
+            `;
+        });
+        
+        // SECTION 3: Multiple Event Listeners
+        document.getElementById("multiButton").addEventListener("click", function() {
+            document.getElementById("multiOutput").textContent += "First callback executed! ";
+        });
+        
+        document.getElementById("multiButton").addEventListener("click", function() {
+            document.getElementById("multiOutput").textContent += "Second callback executed! ";
+        });
+        
+        document.getElementById("resetMulti").addEventListener("click", function() {
+            document.getElementById("multiOutput").textContent = "Output will appear here...";
+        });
+        
+        // SECTION 4: Different Event Types
+        const inputElement = document.getElementById("demoInput");
+        
+        inputElement.addEventListener("input", function() {
+            document.getElementById("inputOutput").textContent = 
+                `Current value: ${this.value}`;
+        });
+        
+        inputElement.addEventListener("focus", function() {
+            document.getElementById("inputOutput").textContent += 
+                "\nInput is focused!";
+        });
+        
+        inputElement.addEventListener("blur", function() {
+            document.getElementById("inputOutput").textContent += 
+                "\nInput lost focus!";
+        });
+        
+        // SECTION 5: Mouse Movement
+        const moveArea = document.getElementById("mouseMoveArea");
+        const moveOutput = document.getElementById("moveOutput");
+        
+        moveArea.addEventListener("mousemove", function(event) {
+            const rect = moveArea.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            moveOutput.textContent = `Mouse position: X=${Math.round(x)}, Y=${Math.round(y)}`;
+        });
+        
+        // SECTION 6: Basic Timers
+        document.getElementById("timeoutButton").addEventListener("click", function() {
+            setTimeout(function() {
+                document.getElementById("timeoutOutput").textContent = 
+                    "This message appeared after 2 seconds!";
+            }, 2000); // 2000 milliseconds = 2 seconds
+            
+            document.getElementById("timeoutOutput").textContent = 
+                "Waiting for 2 seconds...";
+        });
+        
+        // SECTION 7: Interval Timers
+        let counter = 0;
+        let intervalId;
+        
+        document.getElementById("intervalButton").addEventListener("click", function() {
+            // Clear any existing interval first
+            clearInterval(intervalId);
+            
+            counter = 0;
+            document.getElementById("intervalOutput").textContent = "Counter: " + counter;
+            
+            intervalId = setInterval(function() {
+                counter++;
+                document.getElementById("intervalOutput").textContent = "Counter: " + counter;
+                
+                // Stop after reaching 10
+                if (counter >= 10) {
+                    clearInterval(intervalId);
+                    document.getElementById("intervalOutput").textContent += 
+                        "\nCounter stopped after reaching 10";
+                }
+            }, 1000); // Execute every 1 second
+        });
+        
+        // SECTION 8: Progress Bar with Timers
+        let progress = 0;
+        let progressIntervalId;
+        
+        document.getElementById("progressButton").addEventListener("click", function() {
+            // Reset first
+            clearInterval(progressIntervalId);
+            progress = 0;
+            
+            const progressBar = document.getElementById("progressBar");
+            progressBar.style.width = "0%";
+            
+            document.getElementById("progressOutput").textContent = "Progress: 0%";
+            
+            progressIntervalId = setInterval(function() {
+                progress += 1;
+                progressBar.style.width = progress + "%";
+                document.getElementById("progressOutput").textContent = 
+                    `Progress: ${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressIntervalId);
+                    document.getElementById("progressOutput").textContent += 
+                        "\nProgress complete!";
+                }
+            }, 50); // Update every 50ms for smooth animation
+        });
+        
+        // SECTION 9: Clearing Timers
+        let timeoutId;
+        
+        document.getElementById("startTimeoutButton").addEventListener("click", function() {
+            // Clear any existing timeout
+            clearTimeout(timeoutId);
+            
+            document.getElementById("clearOutput").textContent = 
+                "Timeout started. Will execute in 5 seconds...";
+            
+            timeoutId = setTimeout(function() {
+                document.getElementById("clearOutput").textContent = 
+                    "Timeout executed!";
+            }, 5000);
+        });
+        
+        document.getElementById("cancelTimeoutButton").addEventListener("click", function() {
+            clearTimeout(timeoutId);
+            document.getElementById("clearOutput").textContent = 
+                "Timeout was cancelled!";
+        });
+        
+        // SECTION 10: Nested Timers
+        document.getElementById("sequenceButton").addEventListener("click", function() {
+            const output = document.getElementById("sequenceOutput");
+            output.textContent = "Starting sequence...";
+            
+            setTimeout(function() {
+                output.textContent += "\nFirst action after 1 second";
+                
+                setTimeout(function() {
+                    output.textContent += "\nSecond action after 2 more seconds";
+                    
+                    setTimeout(function() {
+                        output.textContent += "\nThird action after 3 more seconds";
+                        output.textContent += "\nSequence complete!";
+                    }, 3000);
+                    
+                }, 2000);
+                
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
